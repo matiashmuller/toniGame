@@ -1,0 +1,80 @@
+import wollok.game.*
+import toni.*
+import plantas.*
+program abc {
+
+	game.title("Toni Game. :-)")
+	game.ground("tierra.png")
+	game.width(14)
+	game.height(10)
+	
+	toni.position( new Position(
+		x= 0.randomUpTo(game.width()).truncate(0),
+		y= 0.randomUpTo(game.height()).truncate(0)	
+	))
+	
+	game.addVisual(toni)
+	
+	keyboard.up().onPressDo({
+		toni.arriba()
+	})
+	
+	keyboard.down().onPressDo({
+		toni.abajo()
+	})
+	
+	keyboard.left().onPressDo({
+		toni.izquierda()
+	})
+	
+	keyboard.right().onPressDo({
+		toni.derecha()
+	})
+	
+	keyboard.m().onPressDo( {
+		var maiz = new Maiz(position=toni.position())
+		game.addVisual(maiz)
+		toni.sembrar(maiz)
+	})
+	
+
+	keyboard.t().onPressDo( {
+		var trigo = new Trigo(position=toni.position())
+		game.addVisual(trigo)
+		toni.sembrar(trigo)
+	})
+	
+	keyboard.o().onPressDo( {
+		var tomaco = new Tomaco(position=toni.position())
+		game.addVisual(tomaco)
+		toni.sembrar(tomaco)
+	})
+
+	keyboard.a().onPressDo( {
+		toni.regarLasPlantas()
+	})
+	
+	keyboard.r().onPressDo({
+		var plantas = game.colliders(toni)
+		plantas.forEach({p=>p.regar()})
+	})
+	
+	keyboard.x().onPressDo( {
+		toni.plantasListasParaCosechar().forEach({
+			p=> game.removeVisual(p)
+		})
+		toni.cosecharTodo()
+	})
+	
+	keyboard.v().onPressDo( {
+		toni.venderCosecha()
+	})
+	
+	keyboard.space().onPressDo( {
+		game.say(toni, "Tengo " + toni.cuantaMondedasTengo())
+	})
+	
+	
+	game.start()
+
+}
