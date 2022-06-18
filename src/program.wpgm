@@ -1,79 +1,81 @@
-import wollok.game.*
-import toni.*
 import plantas.*
-program abc {
+import toni.*
+import wollok.game.*
 
-	game.title("Toni Game. :-)")
+program huerta {
+
+	game.title("Huerta de Toni")
 	game.ground("tierra.png")
 	game.width(14)
 	game.height(10)
 	
-	toni.position( new Position(
-		x= 0.randomUpTo(game.width()).truncate(0),
-		y= 0.randomUpTo(game.height()).truncate(0)	
-	))
-	
+	// Visuales. Plantas agregadas en método "sembrar" de toni
 	game.addVisual(toni)
 	
-	keyboard.up().onPressDo({
+	// Movimiento 
+	keyboard.up().onPressDo {
 		toni.arriba()
-	})
-	
-	keyboard.down().onPressDo({
+	}
+	keyboard.down().onPressDo {
 		toni.abajo()
-	})
-	
-	keyboard.left().onPressDo({
+	}
+	keyboard.left().onPressDo {
 		toni.izquierda()
-	})
-	
-	keyboard.right().onPressDo({
+	}
+	keyboard.right().onPressDo {
 		toni.derecha()
-	})
+	}
 	
-	keyboard.m().onPressDo( {
-		var maiz = new Maiz(position=toni.position())
-		game.addVisual(maiz)
-		toni.sembrar(maiz)
-	})
+	// Acciones
 	
-
-	keyboard.t().onPressDo( {
-		var trigo = new Trigo(position=toni.position())
-		game.addVisual(trigo)
-		toni.sembrar(trigo)
-	})
+	// Sembrar
 	
-	keyboard.o().onPressDo( {
-		var tomaco = new Tomaco(position=toni.position())
-		game.addVisual(tomaco)
-		toni.sembrar(tomaco)
-	})
-
-	keyboard.a().onPressDo( {
+	keyboard.m().onPressDo{
+		toni.sembrar(new Maiz(position= toni.position()))
+		game.say(toni,"Sembrando maíz")
+	}
+	keyboard.t().onPressDo{
+		toni.sembrar(new Trigo(position= toni.position()))
+		game.say(toni,"Sembrando trigo")
+	}
+	keyboard.o().onPressDo{
+		toni.sembrar(new Tomaco(position= toni.position()))
+		game.say(toni,"Sembrando tomaco")
+	}
+	
+	// Regar
+	
+	keyboard.a().onPressDo{
 		toni.regarLasPlantas()
-	})
+		game.say(toni,"Regando")
+	}
+	keyboard.r().onPressDo{
+		if(!game.colliders(toni).isEmpty())
+		game.colliders(toni).anyOne().serRegada()
+		game.say(toni,"Regando aquí")
+	}
 	
-	keyboard.r().onPressDo({
-		var plantas = game.colliders(toni)
-		plantas.forEach({p=>p.regar()})
-	})
+	// Cosechar
 	
-	keyboard.x().onPressDo( {
-		toni.plantasListasParaCosechar().forEach({
-			p=> game.removeVisual(p)
-		})
+	keyboard.x().onPressDo{
 		toni.cosecharTodo()
-	})
+		game.say(toni,"Cosechando")
+	}
+	keyboard.c().onPressDo{
+		if(!game.colliders(toni).isEmpty())
+		toni.cosechar(game.colliders(toni).anyOne())
+		game.say(toni,"Cosechando aquí")
+	}
 	
-	keyboard.v().onPressDo( {
+	// Vender
+	
+	keyboard.v().onPressDo{
 		toni.venderCosecha()
-	})
-	
-	keyboard.space().onPressDo( {
-		game.say(toni, "Tengo " + toni.cuantaMondedasTengo())
-	})
-	
+		game.say(toni,"Vendiendo")
+	}
+	keyboard.space().onPressDo{
+		game.say(toni,"Oro = "+toni.oroRecaudado())
+	}
 	
 	game.start()
 

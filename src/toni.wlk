@@ -1,48 +1,18 @@
 import plantas.*
+import wollok.game.*
 
 object toni {
-	var plantaSembradas = []
-	var plantaCosechadas= []
-	var monedasDeOro = 0
+	const plantasSembradas=[]
+	const plantasCosechadas=[]
+	var property oroRecaudado = 0
 	
-	var property image = "toni.png"
-	var property position 
+	const property image = "toni.png"
+	var property position = game.at(
+		0.randomUpTo(game.width()-1),
+		0.randomUpTo(game.height()-1)
+	)
 	
-	method  cuantaMondedasTengo() = monedasDeOro
-	
-	method sembrar(unaPlanta) {
-		plantaSembradas.add(unaPlanta)
-	}
-	
-	method regarLasPlantas(){
-		plantaSembradas.forEach( {
-			planta => planta.regar()
-		})
-	}
-	
-
-	
-	method plantasListasParaCosechar() {
-		return plantaSembradas.filter( { planta => planta.estaListaParaCosechar()})
-	}
-	
-	method cosecharTodo() {
-		self.plantasListasParaCosechar().forEach( {
-			planta => self.cosecharPlanta(planta)
-		})
-	}
-	
-	method cosecharPlanta(unaPlanta) {
-		plantaSembradas.remove(unaPlanta)
-		plantaCosechadas.add(unaPlanta)
-	}
-	
-	
-	method venderCosecha() {
-		monedasDeOro += plantaCosechadas.sum( { p => p.valor()})
-		plantaCosechadas.clear()
-	}
-	
+	// Movimiento
 	method arriba() {
 		position = position.up(1)
 	}
@@ -51,12 +21,52 @@ object toni {
 		position = position.down(1)
 	}
 	
-	method derecha() {
-		position = position.right(1)
-	}
-	
 	method izquierda() {
 		position = position.left(1)
 	}
 	
+	method derecha() {
+		position = position.right(1)
+	}
+	
+	// Consigna
+	
+	method sembrar(planta) {
+		plantasSembradas.add(planta)
+		game.addVisual(planta)
+	}
+	method regarLasPlantas() {
+		plantasSembradas.forEach{ p => p.serRegada() }
+	}
+	method plantasListasParaCosechar() = plantasSembradas.filter{ p=>p.estaListaParaCosechar()}
+	method cosecharTodo() {
+		self.plantasListasParaCosechar().forEach{p=>self.cosechar(p)}
+	}
+	method cosechar(planta) { 
+		plantasSembradas.remove(planta)
+		plantasCosechadas.add(planta)
+		game.removeVisual(planta)
+	}
+	method venderCosecha() {
+		plantasCosechadas.forEach{p=>self.vender(p)}
+	}
+	method vender(planta) { 
+		oroRecaudado += planta.valor()
+		plantasCosechadas.remove(planta)
+	}
+	
+	/*
+	 * Otra forma de vender cosecha
+	 * Para no borrar mientras se itera en el forEach
+	 * (recomendada por Gerardo)
+	 * 
+	 * method venderCosecha(){
+	 *   oroRecaudado += self.valorCosecha()}
+	 *   plantasCosechadas.clear()
+	 * }
+	 */
+	method paraCuantosDiasLeAlcanza() = ((oroRecaudado + self.valorCosecha())/200).truncate(0)
+	method valorCosecha() = plantasCosechadas.sum{p=>p.valor()}
+	method cuantoHayParaCeliacos() = self.plantasListasParaCosechar().count{p=>p.esAptaCeliacos()}
+	method convieneRegar() = plantasSembradas.any{p=>!p.estaListaParaCosechar()} 
 }
